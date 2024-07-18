@@ -1,0 +1,33 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer-argocd
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: argocd-ca
+  secretName: argocd-root-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  duration: 87600h # 10 years
+  renewBefore: 720h # 30 days before expiry
+  issuerRef:
+    name: selfsigned-issuer-argocd
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: argocd-issuer
+spec:
+  ca:
+    secretName: argocd-root-secret
